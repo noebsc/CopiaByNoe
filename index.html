@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COPIA - V1.Beta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-blue: #1a237e;
+            --medium-blue: #303f9f;
+            --light-blue: #90caf9;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--dark-blue);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--white);
+            animation: fadeInDown 1s ease;
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--light-blue), var(--medium-blue));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.8s ease;
+        }
+
+        .messages-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            min-height: 400px;
+            max-height: 600px;
+            background-color: var(--light-gray);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: messageAppear 0.5s ease;
+        }
+
+        .message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message.ai {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background-color: var(--medium-blue);
+            color: var(--white);
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.ai .message-bubble {
+            background-color: var(--white);
+            color: var(--dark-blue);
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-images {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .message-images img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 10px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .message-images img:hover {
+            transform: scale(1.1);
+        }
+
+        .input-section {
+            padding: 25px;
+            background-color: var(--white);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: imageSlideIn 0.3s ease;
+        }
+
+        .image-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ccc;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .remove-image:hover {
+            background: #ff3742;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            height: 50px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            font-size: 16px;
+            resize: none;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--medium-blue);
+            box-shadow: 0 0 0 3px rgba(48, 63, 159, 0.1);
+        }
+
+        .send-button, .upload-button {
+            height: 50px;
+            padding: 10px 15px;
+            background-color: var(--medium-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover:not(:disabled), .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(48, 63, 159, 0.3);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message.ai .message-bubble.error {
+            background: #ffe6e6;
+            border-color: #ff6b6b;
+            color: #d63031;
+        }
+
+        .send-button.sending {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            animation: pulse 2s infinite;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            border-bottom-left-radius: 5px;
+            max-width: 100px;
+            animation: messageAppear 0.5s ease;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--medium-blue);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--dark-blue);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .modal-content img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes imageSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .message-bubble {
+                max-width: 95%;
+            }
+            .input-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .send-button, .upload-button {
+                margin-top: 10px;
+            }
+        }
+
+        /* Custom scrollbar */
+        .messages-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-area::-webkit-scrollbar-thumb {
+            background: rgba(48, 63, 159, 0.3);
+            border-radius: 3px;
+        }
+
+        .messages-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(48, 63, 159, 0.5);
+        }
+
+        /* Text formatting */
+        .message-content {
+            line-height: 1.5;
+        }
+
+        .message-content strong, .message-content b {
+            font-weight: bold;
+        }
+
+        .message-content em, .message-content i {
+            font-style: italic;
+        }
+
+        .message-content code {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .message-content pre {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .message-content hr {
+            border: 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>COPIA</h1>
+            <p>Envoyez vos photos et messages à l'IA Copia</p>
+        </div>
+        <div class="chat-container">
+            <div class="messages-area" id="messagesArea">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <h3>Commencez une conversation</h3>
+                    <p>Envoyez un message avec ou sans images pour commencer</p>
+                </div>
+            </div>
+            <div class="input-section">
+                <div class="image-preview" id="imagePreview"></div>
+                <div class="input-container">
+                    <textarea id="messageInput" class="message-input" placeholder="Tapez votre message... (obligatoire)" rows="1"></textarea>
+                    <button id="uploadButton" class="upload-button">📸</button>
+                    <button id="sendButton" class="send-button">
+                        <span id="sendText">Envoyer</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal pour afficher les images en grand -->
+    <div class="modal-overlay" id="imageModal">
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="">
+        </div>
+    </div>
+    <script>
+        class CopiaChat {
+            constructor() {
+                this.selectedImages = [];
+                this.messages = [];
+                this.isLoading = false;
+
+                this.initElements();
+                this.bindEvents();
+            }
+
+            initElements() {
+                this.messagesArea = document.getElementById('messagesArea');
+                this.uploadButton = document.getElementById('uploadButton');
+                this.imageInput = document.createElement('input');
+                this.imageInput.type = 'file';
+                this.imageInput.id = 'imageInput';
+                this.imageInput.multiple = true;
+                this.imageInput.accept = 'image/*';
+                this.imageInput.style.display = 'none';
+                document.body.appendChild(this.imageInput);
+                this.imagePreview = document.getElementById('imagePreview');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.sendText = document.getElementById('sendText');
+                this.imageModal = document.getElementById('imageModal');
+                this.modalImage = document.getElementById('modalImage');
+            }
+
+            bindEvents() {
+                this.uploadButton.addEventListener('click', () => this.imageInput.click());
+                this.imageInput.addEventListener('change', (e) => this.handleImageSelect(e));
+
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                this.messageInput.addEventListener('input', () => {
+                    this.messageInput.style.height = 'auto';
+                    this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 120) + 'px';
+                });
+
+                this.imageModal.addEventListener('click', (e) => {
+                    if (e.target === this.imageModal) {
+                        this.closeModal();
+                    }
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeModal();
+                    }
+                });
+            }
+
+            handleImageSelect(e) {
+                const files = Array.from(e.target.files).filter(file => file.type.startsWith('image/'));
+                const remainingSlots = 4 - this.selectedImages.length;
+                if (files.length > remainingSlots) {
+                    files.splice(remainingSlots);
+                    this.showNotification(`Maximum 4 images autorisées. ${remainingSlots} images ajoutées.`, 'warning');
+                }
+                files.forEach(file => this.addImage(file));
+                this.imageInput.value = '';
+            }
+
+            addImage(file) {
+                if (this.selectedImages.length >= 4) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imageData = {
+                        file: file,
+                        url: e.target.result,
+                        id: Date.now() + Math.random()
+                    };
+                    this.selectedImages.push(imageData);
+                    this.renderImagePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            removeImage(imageId) {
+                this.selectedImages = this.selectedImages.filter(img => img.id !== imageId);
+                this.renderImagePreview();
+            }
+
+            renderImagePreview() {
+                this.imagePreview.innerHTML = '';
+                this.selectedImages.forEach(image => {
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'image-item';
+                    imageItem.innerHTML = `
+                        <img src="${image.url}" alt="Preview">
+                        <button class="remove-image" onclick="chat.removeImage(${image.id})">×</button>
+                    `;
+                    this.imagePreview.appendChild(imageItem);
+                });
+            }
+
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message || message.length < 5) {
+                    this.showNotification('Le message doit contenir au moins 5 caractères !', 'error');
+                    this.messageInput.focus();
+                    return;
+                }
+                if (this.selectedImages.length === 0) {
+                    this.showNotification('Vous devez joindre au moins une photo !', 'error');
+                    return;
+                }
+                if (this.isLoading) return;
+
+                const imagesToSend = [...this.selectedImages];
+                this.addMessage({
+                    type: 'user',
+                    content: message,
+                    images: imagesToSend,
+                    timestamp: new Date()
+                });
+
+                this.messageInput.value = '';
+                this.messageInput.style.height = 'auto';
+                this.selectedImages = [];
+                this.renderImagePreview();
+
+                this.showTypingIndicator();
+                this.setLoading(true);
+
+                try {
+                    const response = await this.callCopiaAPI(message, imagesToSend);
+                    this.hideTypingIndicator();
+                    this.addMessage({
+                        type: 'ai',
+                        content: response,
+                        timestamp: new Date()
+                    });
+                    this.showNotification('Message envoyé avec succès !', 'success');
+                } catch (error) {
+                    this.hideTypingIndicator();
+                    let errorMessage = 'Désolé, je n\'ai pas pu obtenir de réponse. Veuillez réessayer.';
+                    if (error.message.includes('400')) {
+                        errorMessage = 'Erreur de format des données envoyées.';
+                    } else if (error.message.includes('500')) {
+                        errorMessage = 'Erreur interne du serveur. L\'API semble avoir un problème.';
+                    } else if (error.message.includes('Failed to fetch')) {
+                        errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion.';
+                    }
+                    this.addMessage({
+                        type: 'ai',
+                        content: errorMessage,
+                        timestamp: new Date(),
+                        isError: true
+                    });
+                    this.showNotification(errorMessage, 'error');
+                }
+                this.setLoading(false);
+            }
+
+            async callCopiaAPI(message, images) {
+                const formData = new FormData();
+                formData.append('questions', message);
+                images.forEach((image) => {
+                    formData.append('photos', image.file);
+                });
+
+                const response = await fetch('https://copia-2vq4.onrender.com/api/ask', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.answers || data.answer || 'Réponse vide de l\'API';
+            }
+
+            addMessage(messageData) {
+                const emptyState = this.messagesArea.querySelector('.empty-state');
+                if (emptyState && this.messages.length === 0) {
+                    emptyState.remove();
+                }
+                this.messages.push(messageData);
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${messageData.type}`;
+                let imagesHtml = '';
+                if (messageData.images && messageData.images.length > 0) {
+                    const imageElements = messageData.images.map(image =>
+                        `<img src="${image.url}" alt="Image" onclick="chat.showImageModal('${image.url}')">`
+                    ).join('');
+                    imagesHtml = `<div class="message-images">${imageElements}</div>`;
+                }
+                messageDiv.innerHTML = `
+                    <div class="message-bubble ${messageData.isError ? 'error' : ''}">
+                        ${imagesHtml}
+                        <div class="message-content">${this.formatMessage(messageData.content)}</div>
+                    </div>
+                `;
+                this.messagesArea.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            formatMessage(content) {
+                return content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/--/g, '<hr>')
+                    .replace(/`([^`]+)`/g, '<code>$1</code>')
+                    .replace(/```([\s\S]+?)```/g, '<pre>$1</pre>');
+            }
+
+            showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message ai';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                this.messagesArea.appendChild(typingDiv);
+                this.scrollToBottom();
+            }
+
+            hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            setLoading(loading) {
+                this.isLoading = loading;
+                this.sendButton.disabled = loading;
+                if (loading) {
+                    this.sendButton.classList.add('sending');
+                    this.sendText.textContent = 'Envoi...';
+                } else {
+                    this.sendButton.classList.remove('sending');
+                    this.sendText.textContent = 'Envoyer';
+                }
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.messagesArea.scrollTop = this.messagesArea.scrollHeight;
+                }, 100);
+            }
+
+            showImageModal(imageSrc) {
+                this.modalImage.src = imageSrc;
+                this.imageModal.style.display = 'flex';
+            }
+
+            closeModal() {
+                this.imageModal.style.display = 'none';
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    color: white;
+                    font-weight: 600;
+                    z-index: 1001;
+                    animation: slideInRight 0.3s ease;
+                    max-width: 300px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                `;
+                const colors = {
+                    info: '#667eea',
+                    success: '#51cf66',
+                    warning: '#ffd43b',
+                    error: '#ff6b6b'
+                };
+                notification.style.background = colors[type] || colors.info;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        let chat;
+        document.addEventListener('DOMContentLoaded', () => {
+            chat = new CopiaChat();
+        });
+    </script>
+</body>
+</html>
