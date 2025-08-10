@@ -327,6 +327,59 @@
             object-fit: contain;
         }
 
+        /* Ajout styles popup marketing */
+        .marketing-popup-overlay {
+            position: fixed;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .marketing-popup {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 90%;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            animation: fadeIn 0.4s ease;
+        }
+        .marketing-popup h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        .glass-button {
+            display: inline-block;
+            padding: 15px 35px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        .glass-button:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 35px rgba(0,0,0,0.4);
+        }
+        .marketing-popup p.small {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
         /* Animations */
         @keyframes fadeInDown {
             from {
@@ -509,6 +562,15 @@
             </div>
         </div>
     </div>
+    <div class="marketing-popup-overlay" id="popupOverlay" style="display:none;">
+        <div class="marketing-popup">
+            <h2>🚀 Copia est aussi disponible sur ordinateur !</h2>
+            <p>Profitez de la puissance de Copia directement sur Windows, avec performance maximale.</p>
+            <a href="https://github.com/noebsc/CopiaByNoe/releases/download/v1.0.0/Copia.1.0.0.exe" class="glass-button">📥 Télécharger</a>
+            <p class="small">pour Windows</p>
+        </div>
+    </div>
+
     <!-- Modal pour afficher les images en grand -->
     <div class="modal-overlay" id="imageModal">
         <div class="modal-content">
