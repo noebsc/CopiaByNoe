@@ -578,6 +578,12 @@
         </div>
     </div>
     <script>
+        window.addEventListener('load', () => {
+            document.getElementById('popupOverlay').style.display = 'flex';
+        });
+        document.getElementById('popupOverlay').addEventListener('click', (e) => {
+            if(e.target.id === 'popupOverlay') e.target.style.display = 'none';
+        });
         class CopiaChat {
             constructor() {
                 this.selectedImages = [];
